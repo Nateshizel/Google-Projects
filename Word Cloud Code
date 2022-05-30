@@ -1,0 +1,88 @@
+
+get_ipython().system('pip install wordcloud')
+get_ipython().system('pip install fileupload')
+get_ipython().system('pip install ipywidgets')
+get_ipython().system('jupyter nbextension install --py --user fileupload')
+get_ipython().system('jupyter nbextension enable --py fileupload')
+
+import wordcloud
+import numpy as np
+from matplotlib import pyplot as plt
+from IPython.display import display
+import fileupload
+import io
+import sys
+
+
+
+
+def _upload():
+
+    _upload_widget = fileupload.FileUploadWidget()
+
+    def _cb(change):
+        global file_contents
+        decoded = io.StringIO(change['owner'].data.decode('utf-8'))
+        filename = change['owner'].filename
+        print('Uploaded `{}` ({:.2f} kB)'.format(
+            filename, len(decoded.read()) / 2 **10))
+        file_contents = decoded.getvalue()
+
+    _upload_widget.observe(_cb, names='data')
+    display(_upload_widget)
+
+_upload()
+
+
+
+
+## Threshold FAQ Answers from Website
+
+file_contents = """
+Padmission is just one of the tools we offer to property owners and managers to make your participation easy and seamless. It is an Internet Listing System (ILS) where you can list your properties and available units for search by housing program participants and their case managers.  The Threshold team will assist you in the listing and updating process to ensure accurate, timely information in the system. To register for Padmission, visit hom.padmission.com and click Sign up Now.
+
+Threshold is a brand-new service for all housing programs geared toward providing homes for those experiencing homelessness in Maricopa County. It is not just for those who are partners of HOM, although there will be many service providers within the Threshold network who use HOM to administer housing subsidy and related housing program operations. Like HOM, Threshold is building a community that is safe and healthy because everyone has a home. Threshold is operated by HOM, meaning it can rely on HOM’s unique housing and real estate expertise and role in the system.
+
+No, Threshold is not a voucher program, but it enhances and lies atop voucher programs to make them stronger and work better for property owners and managers.  Threshold is a new service designed specifically for property owners and managers. It is tailored to provide comprehensive solutions that meet their needs, including financial incentives, easy-to-use software, and financial and technical resources. It is not itself a program or intervention for clients of HOM.
+Thank you for finding new folks who want to operate a profitable, well-maintained property while ensuring our communities have a home for everyone. Please fill out and submit the form on the Contact Us page to refer any potential owners or managers interested in joining the Threshold network.
+
+"""
+
+def calculate_frequencies(file_contents):
+    # Here is a list of punctuations and uninteresting words you can use to process your text
+    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_~'''
+    uninteresting_words = ["the", "a", "to", "if", "is", "it", "of", "and", "or", "an", "as", "i", "me", "my",     "we", "our", "ours", "you", "your", "yours", "he", "she", "him", "his", "her", "hers", "its", "they", "them",     "their", "what", "which", "who", "whom", "this", "that", "am", "are", "was", "were", "be", "been", "being",     "have", "has", "had", "do", "does", "did", "but", "at", "by", "with", "from", "here", "when", "where", "how",     "all", "any", "both", "each", "few", "more", "some", "such", "no", "nor", "too", "very", "can", "will", "just", "in", "it"]
+    
+    # LEARNER CODE START HERE
+    
+    
+    result = {}
+    a = file_contents.split()
+    for word in a:
+        if word in uninteresting_words:
+            pass
+        else:
+            for letter in word:
+                if letter in punctuations:
+                    letter.replace(punctuations,"")
+            if word not in result.keys():
+                result[word]=0
+            else:
+                result[word]+=1
+    
+    cloud = wordcloud.WordCloud()
+    cloud.generate_from_frequencies(result)
+    return cloud.to_array()
+
+
+
+result = {}
+myimage = calculate_frequencies(file_contents)
+plt.imshow(myimage, interpolation = 'nearest')
+plt.axis('off')
+plt.show()
+
+
+
+
+
